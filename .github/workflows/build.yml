@@ -13,7 +13,7 @@ jobs:
   build:
     name: Build userspace firmware
     runs-on: ubuntu-latest
-    container: ghcr.io/qmk/qmk_cli:latest@sha256:b7d7fa8fb4432b569931de5ad59098cb788f440ed61a62c5126746b71aee0f4a
+    container: ghcr.io/qmk/qmk_cli:1.2.0@sha256:b7d7fa8fb4432b569931de5ad59098cb788f440ed61a62c5126746b71aee0f4a
     steps:
       - name: Checkout userspace
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
