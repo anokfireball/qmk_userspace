@@ -1,3 +1,6 @@
+// Copyright 2024 Fabian Koller (@anokfireball)
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 #pragma once
 
 #define RGB_TRIGGER_ON_KEYDOWN
