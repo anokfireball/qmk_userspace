@@ -5,14 +5,21 @@
     {
       "customType": "regex",
       "description": "Pin the firmware fork commit the userspace builds against",
-      "managerFilePatterns": [
-        "/^firmware-fork-ref$/"
-      ],
+      "managerFilePatterns": ["/^firmware-fork-ref$/"],
       "matchStrings": ["(?<currentDigest>[a-f0-9]{40})"],
       "currentValueTemplate": "master",
       "depNameTemplate": "anokfireball/qmk_firmware",
       "packageNameTemplate": "https://github.com/anokfireball/qmk_firmware",
       "datasourceTemplate": "git-refs"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Renovate cannot build a changelog for a branch-digest bump, so link the commit range instead",
+      "matchPackageNames": ["anokfireball/qmk_firmware"],
+      "prBodyNotes": [
+        "### Firmware changes\n\n[Compare `{{{currentDigest}}}...{{{newDigest}}}`](https://github.com/anokfireball/qmk_firmware/compare/{{{currentDigest}}}...{{{newDigest}}})"
+      ]
     }
   ]
 }
