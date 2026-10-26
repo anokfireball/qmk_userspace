@@ -1,0 +1,113 @@
+name: Build QMK userspace
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build userspace firmware
+    runs-on: ubuntu-latest
+    container: ghcr.io/qmk/qmk_cli:latest
+    steps:
+      - name: Checkout userspace
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Checkout QMK firmware fork
+        uses: actions/checkout@v6
+        with:
+          repository: anokfireball/qmk_firmware
+          ref: master
+          path: qmk_firmware
+          fetch-depth: 1
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Pin firmware checkout to Renovate-tracked commit
+        id: pin
+        shell: bash
+        run: |
+          set -euo pipefail
+          pinned="$(tr -d '[:space:]' < "$GITHUB_WORKSPACE/firmware-fork-ref")"
+          if ! [[ "$pinned" =~ ^[a-f0-9]{40}$ ]]; then
+            echo "::error::firmware-fork-ref must contain a 40-character commit SHA"
+            exit 1
+          fi
+          git -C qmk_firmware fetch --no-tags origin "$pinned"
+          git -C qmk_firmware checkout --detach "$pinned"
+          git -C qmk_firmware submodule update --init --recursive
+          version="$(tr -d '[:space:]' < qmk_firmware/.upstream-qmk-tag)"
+          echo "firmware_ref=$pinned" >> "$GITHUB_OUTPUT"
+          echo "firmware_version=$version" >> "$GITHUB_OUTPUT"
+          echo "firmware pinned at: $pinned (upstream QMK $version)"
+
+      - name: Install QMK dependencies
+        run: pip install -r qmk_firmware/requirements.txt
+
+      - name: Configure QMK CLI
+        run: |
+          qmk config userspace_compile.parallel="$(nproc)"
+          qmk config user.qmk_home="$GITHUB_WORKSPACE/qmk_firmware"
+          qmk config user.overlay_dir="$GITHUB_WORKSPACE"
+
+      - name: Validate userspace
+        run: qmk userspace-doctor
+
+      - name: Build firmware
+        run: |
+          if qmk userspace-compile --help | grep -q "print-failures"; then
+            qmk userspace-compile -e DUMP_CI_METADATA=yes -p
+          else
+            qmk userspace-compile -e DUMP_CI_METADATA=yes
+          fi
+
+      - name: Stage firmware for release
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          for f in *.bin *.hex *.uf2; do
+            [ -e "$f" ] || continue
+            mv "$f" release/
+          done
+          sha256sum release/* | sed 's|release/||' > release/checksums.txt
+          ls -la release/
+
+      - name: Upload firmware artifacts
+        if: always() && !cancelled()
+        continue-on-error: true
+        uses: actions/upload-artifact@v7
+        with:
+          name: Firmware
+          path: release/*
+
+      - name: Publish GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FIRMWARE_REF: ${{ steps.pin.outputs.firmware_ref }}
+          FIRMWARE_VERSION: ${{ steps.pin.outputs.firmware_version }}
+        run: |
+          set -euo pipefail
+          tag="firmware-$(date -u +%Y%m%d-%H%M%S)-${GITHUB_SHA::8}"
+          ref_short="${FIRMWARE_REF::8}"
+          {
+            echo "Built from userspace commit [${GITHUB_SHA::8}](https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA})."
+            echo
+            echo "- Upstream QMK release: [${FIRMWARE_VERSION}](https://github.com/qmk/qmk_firmware/tree/${FIRMWARE_VERSION})"
+            echo "- Firmware fork built from: [${ref_short}](https://github.com/anokfireball/qmk_firmware/tree/${FIRMWARE_REF})"
+            echo
+            echo "Artifacts: \`neo_ergo_anokfireball.bin\`, \`monsgeek_m1_anokfireball.bin\`, \`checksums.txt\`."
+          } > release-notes.md
+          gh release create "$tag" release/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "QMK ${FIRMWARE_VERSION} (userspace ${GITHUB_SHA::8})" \
+            --notes-file release-notes.md
