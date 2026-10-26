@@ -18,6 +18,7 @@
 
 // WIN versions of umlauts, eszett, etc.
 // works really well with US-International (WIN) and us-acentos (LINUX)
+// clang-format off
 #define WIN_AE   RALT(KC_Q)
 #define WIN_OE   RALT(KC_P)
 #define WIN_UE   RALT(KC_Y)
@@ -26,6 +27,7 @@
 #define WIN_SLP  LWIN(KC_L)
 #define WIN_CAPS CTL_T(KC_ESC)
 #define WIN_SPC  LT(WIN_U, KC_SPC)
+// clang-format on
 // Home Row mods
 #define WIN_HR_A LGUI_T(KC_A)
 #define WIN_HR_S LALT_T(KC_S)
@@ -38,12 +40,14 @@
 
 // MAC versions of umlauts, eszett, etc.
 // works really well with US-ANSI
+// clang-format off
 #define MAC_SZ   LALT(KC_S)
 #define MAC_EUR  LSA(KC_2)
 #define MAC_SLP  LCTL(LCMD(KC_Q))
 #define MAC_CAPS CMD_T(KC_ESC)
 #define MAC_SPC  LT(MAC_U, KC_SPC)
 #define MAC_MEGA LCAG_T(KC_RCMD)
+// clang-format on
 // Home Row mods
 #define MAC_HR_A LCTL_T(KC_A)
 #define MAC_HR_S LOPT_T(KC_S)
@@ -54,6 +58,7 @@
 #define MAC_HR_L ROPT_T(KC_L)
 #define MAC_HR__ RCTL_T(KC_SCLN)
 
+// clang-format off
 enum __layers {
     DEF_B,
     DEF_F,
@@ -64,7 +69,9 @@ enum __layers {
     MAC_U,
     MAC_F
 };
+// clang-format on
 
+// clang-format off
 enum __keycodes {
     // avoid dead keys
     // only really useful with US-International (WIN)
@@ -77,6 +84,7 @@ enum __keycodes {
     MAC_OE,
     MAC_UE
 };
+// clang-format on
 
 bool capsword_active = false;
 
@@ -333,6 +341,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true; // Process all other keycodes normally
 }
 
+// clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [DEF_B] = LAYOUT_all( /* Base */
         KC_ESC,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11, KC_F12,   KC_DEL,           XXXXXXX,
@@ -406,7 +415,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______,                   RM_TOGG,                            _______, _______, _______,          _______,  _______, _______
     ),
 };
+// clang-format on
 
+// clang-format off
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [DEF_B] = { ENCODER_CCW_CW(KC_VOLU, KC_VOLD) },
     [DEF_F] = { ENCODER_CCW_CW(KC_MNXT, KC_MPRV) },
@@ -417,7 +428,9 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [MAC_U] = { ENCODER_CCW_CW(KC_VOLU, KC_VOLD) },
     [MAC_F] = { ENCODER_CCW_CW(KC_MNXT, KC_MPRV) },
 };
+// clang-format on
 
+// clang-format off
 const char PROGMEM chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] =
     LAYOUT_all(
         'L', 'L', 'L', 'L', 'L', 'L', '*', 'R', 'R', 'R', 'R', 'R', 'R', 'R',      'R',
@@ -427,4 +440,5 @@ const char PROGMEM chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] =
         'L', 'L', 'L', 'L', 'L', 'L', 'L', 'R', 'R', 'R', 'R', 'R',      'R', 'R', 'R',
         'L', 'L', 'L',              '*',             'R', 'R', 'R',      'R', 'R', 'R'
     );
+// clang-format on
 
