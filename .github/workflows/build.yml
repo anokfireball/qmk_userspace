@@ -97,6 +97,11 @@ jobs:
           FIRMWARE_VERSION: ${{ steps.pin.outputs.firmware_version }}
         run: |
           set -euo pipefail
+          if latest="$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName 2>/dev/null)" \
+            && gh release download "$latest" --repo "$GITHUB_REPOSITORY" --pattern checksums.txt --output - | diff -q - release/checksums.txt >/dev/null; then
+            echo "Artifacts are identical to $latest; not publishing a new release."
+            exit 0
+          fi
           tag="firmware-$(date -u +%Y%m%d-%H%M%S)-${GITHUB_SHA::8}"
           ref_short="${FIRMWARE_REF::8}"
           {
