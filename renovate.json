@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:best-practices", "helpers:githubDigestChangelogs"],
+  "extends": ["config:best-practices"],
   "customManagers": [
     {
       "customType": "regex",
@@ -18,6 +18,13 @@
       "description": "The qmk_cli image carries no org.opencontainers.image.source label, so point Renovate at the repo for release notes on version bumps",
       "matchPackageNames": ["ghcr.io/qmk/qmk_cli"],
       "sourceUrl": "https://github.com/qmk/qmk_cli"
+    },
+    {
+      "description": "Renovate cannot build a changelog for a branch-digest bump, so link the commit range from the Change column",
+      "matchDepNames": ["anokfireball/qmk_firmware"],
+      "prBodyDefinitions": {
+        "Change": "[`{{{displayFrom}}}` → `{{{displayTo}}}`](https://github.com/anokfireball/qmk_firmware/compare/{{{currentDigest}}}...{{{newDigest}}})"
+      }
     }
   ]
 }
