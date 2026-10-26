@@ -1,0 +1,16 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:best-practices"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Pin the firmware fork commit the userspace builds against",
+      "fileMatch": ["^firmware-fork-ref$"],
+      "matchStrings": ["(?<currentDigest>[a-f0-9]{40})"],
+      "currentValueTemplate": "master",
+      "depNameTemplate": "anokfireball/qmk_firmware",
+      "packageNameTemplate": "https://github.com/anokfireball/qmk_firmware",
+      "datasourceTemplate": "git-refs"
+    }
+  ]
+}
