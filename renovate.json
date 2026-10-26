@@ -5,7 +5,9 @@
     {
       "customType": "regex",
       "description": "Pin the firmware fork commit the userspace builds against",
-      "fileMatch": ["^firmware-fork-ref$"],
+      "managerFilePatterns": [
+        "/^firmware-fork-ref$/"
+      ],
       "matchStrings": ["(?<currentDigest>[a-f0-9]{40})"],
       "currentValueTemplate": "master",
       "depNameTemplate": "anokfireball/qmk_firmware",
