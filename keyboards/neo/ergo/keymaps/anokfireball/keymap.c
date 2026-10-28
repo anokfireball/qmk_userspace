@@ -84,6 +84,8 @@ enum custom_keycodes {
     MAC_AE,
     MAC_OE,
     MAC_UE,
+    // RGB on/off without persisting to EEPROM
+    RGB_TOG_RAM,
 };
 // clang-format on
 
@@ -377,6 +379,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     send_string_(SS_LALT("u") "o");
                 }
                 return false; // Skip all further processing of this key
+            case RGB_TOG_RAM:
+                rgb_matrix_toggle_noeeprom();
+                return false; // Skip all further processing of this key
         }
     }
     return true; // Process all other keycodes normally
@@ -397,7 +402,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,DF(WIN_B),_______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,          QK_BOOT,
         _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______, _______, _______, _______, _______, _______, _______,
-                 _______, _______,          _______,          RM_TOGG,                            RM_TOGG,          _______,          _______, _______, _______
+                 _______, _______,          _______,          RGB_TOG_RAM,                        RGB_TOG_RAM,      _______,          _______, _______, _______
     ),
 
     [WIN_B] = LAYOUT_hot( /* Base */
@@ -421,7 +426,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         DT_UP,  DF(MAC_B),_______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______, _______, _______,
         DT_DOWN, _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,          QK_BOOT,
         DT_PRNT, _______, _______, _______, _______, _______, _______, _______,          _______, _______, _______, KC_MPRV, KC_MNXT, KC_MPLY, _______, WIN_SLP,
-                 _______, _______,          _______,          RM_TOGG,                            RM_TOGG,          _______,          _______, _______, _______
+                 _______, _______,          _______,          RGB_TOG_RAM,                        RGB_TOG_RAM,      _______,          _______, _______, _______
     ),
 
     [MAC_B] = LAYOUT_hot( /* Base */
@@ -445,7 +450,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         DT_UP,  DF(DEF_B),_______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______, _______, _______,
         DT_DOWN, _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,          QK_BOOT,
         DT_PRNT, _______, _______, _______, _______, _______, _______, _______,          _______, _______, _______, KC_MPRV, KC_MNXT, KC_MPLY, _______, MAC_SLP,
-                 _______, _______,          _______,          RM_TOGG,                            RM_TOGG,          _______,          _______, _______, _______
+                 _______, _______,          _______,          RGB_TOG_RAM,                        RGB_TOG_RAM,      _______,          _______, _______, _______
     )
 };
 // clang-format on
