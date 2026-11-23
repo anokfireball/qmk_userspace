@@ -107,6 +107,27 @@ bool process_detected_host_os_user(os_variant_t detected_os) {
     return true;
 }
 
+// SOCD cleaning of WASD (https://getreuer.info/posts/keyboards/socd-cleaner/index.html)
+// Only meaningful on DEF_B: the WIN/MAC base layers use home-row mod-taps on A/S/D,
+// which the module cannot match against plain KC_A/KC_S/KC_D.
+socd_cleaner_t socd_opposing_pairs[] = {
+    {{KC_W, KC_S}, SOCD_CLEANER_LAST},
+    {{KC_A, KC_D}, SOCD_CLEANER_LAST},
+};
+
+static void socd_cleaner_sync(layer_state_t default_state) {
+    socd_cleaner_enabled = IS_LAYER_ON_STATE(default_state, DEF_B);
+}
+
+void keyboard_post_init_user(void) {
+    socd_cleaner_sync(default_layer_state);
+}
+
+layer_state_t default_layer_state_set_user(layer_state_t state) {
+    socd_cleaner_sync(state);
+    return state;
+}
+
 void caps_word_set_user(bool active) {
     switch (get_highest_layer(layer_state | default_layer_state)) {
         case DEF_B:
