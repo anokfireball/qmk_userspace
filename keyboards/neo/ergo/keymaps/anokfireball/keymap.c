@@ -206,14 +206,14 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case MAC_CAPS:
         case MAC_MEGA:
             return 0;
+        /* shift needs to be a little faster for rolls */
         case WIN_HR_D:
+        case WIN_HR_K:
+            return TAPPING_TERM * 0.75;
         case WIN_HR_F:
         case WIN_HR_J:
-        case WIN_HR_K:
-        // case MAC_HR_D:
         case MAC_HR_F:
         case MAC_HR_J:
-        // case MAC_HR_K:
             return TAPPING_TERM;
         /* turns out I have weak lingering pinkeys */
         case WIN_HR_A:
