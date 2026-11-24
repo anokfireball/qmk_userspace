@@ -180,16 +180,64 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     return false;
 }
 
+// Same-hand rolls on the Shift home row mods (D and K).
+// D and K keep a short term so cross-hand rolled capitals (D held, P pressed)
+// still give Shift. A same-hand key typed after them would miss that term:
+// Chordal Hold defers the decision to the next key's release when that key is a
+// tap-hold too, which lands after the 150 ms ("ads" -> "aS", "kl" -> "L"). Once
+// a same-hand key goes down after D/K, their term is extended so the same-hand
+// rule (a same-hand key types its letter) can settle D/K as a tap. The index home
+// row mods do not set the flag, so Shift+Ctrl/Cmd stacking keeps working in
+// either order. D/K already down for 150 ms before the next key goes down still
+// become Shift. The flag is reset by their own press.
+#define SAME_HAND_ROLL_TERM 1000
+static bool d_same_hand_roll = false;
+static bool k_same_hand_roll = false;
+
+bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (record->event.pressed) {
+        switch (keycode) {
+            // D and K reset their own flag when pressed.
+            case WIN_HR_D:
+                d_same_hand_roll = false;
+                break;
+            case WIN_HR_K:
+                k_same_hand_roll = false;
+                break;
+            // Index home row mods never extend the term.
+            case WIN_HR_F:
+            case MAC_HR_F:
+            case WIN_HR_J:
+            case MAC_HR_J:
+                break;
+            default:
+                switch (chordal_hold_handedness(record->event.key)) {
+                    case 'L':
+                        d_same_hand_roll = true;
+                        break;
+                    case 'R':
+                        k_same_hand_roll = true;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+        }
+    }
+    return true;
+}
+
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case WIN_CAPS:
         case MAC_CAPS:
         case MAC_MEGA:
             return 0;
-        /* shift needs to be a little faster for rolls */
+        /* shift needs to be a little faster for rolls, unless a same-hand key followed */
         case WIN_HR_D:
+            return d_same_hand_roll ? SAME_HAND_ROLL_TERM : TAPPING_TERM * 0.75;
         case WIN_HR_K:
-            return TAPPING_TERM * 0.75;
+            return k_same_hand_roll ? SAME_HAND_ROLL_TERM : TAPPING_TERM * 0.75;
         case WIN_HR_F:
         case WIN_HR_J:
         case MAC_HR_F:
